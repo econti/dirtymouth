@@ -1,12 +1,11 @@
 
 <head>
 <script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+<link href="//netdna.bootstrapcdn.com/bootstrap/3.0.2/css/bootstrap.min.css" rel="stylesheet">
 </head>
 <body>
-  <fb:login-button show-faces="true" width="200" max-rows="1"></fb:login-button>
-  <fb:logout-button show-faces="true" width="200" max-rows="1"></fb:logout-button>
-  <a href="#" onclick="whatsMyName()">Whats my name?</a>
-  <a href="#" onclick="fbLogoutUser()">LOGOUT</a>
+  <a id="login" class='btn btn-large btn-success'>HOW DIRTY AM I</a>
+  <a href="#" onclick="whatsMyName()">i b squirting</a>
 </body>
 <script>
 
@@ -40,6 +39,9 @@
 //herpy derp
   // Load the SDK asynchronously
 
+  $("#login").click(function(){
+    hasLogin();
+  });
 
   (function(d, s, id){
      var js, fjs = d.getElementsByTagName(s)[0];
@@ -106,6 +108,10 @@ function genWrap() {
     generate(document.messages, false)
 }
 
+function generate(d, c) {
+  //todo calculate dirtiness
+}
+
 function addMessage(a) {
     if (document.messages.length > 1000) {
         return
@@ -151,6 +157,23 @@ function processLogin(a) {
         $("#btn-login").show();
         $("#btn-logout").hide()
     }
+}
+
+function hasLogin() {
+    if (!document.myUID) {
+        FB.login(function (a) {
+            processLogin(a)
+        }, {
+            scope: "user_status,user_photos"
+        });
+        return false
+    }
+    return true
+}
+
+function stopLoading() {
+    document.loading = false;
+    $("#loading").slideUp(500)
 }
 
 function fbLogoutUser() {
