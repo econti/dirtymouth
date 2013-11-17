@@ -2,9 +2,11 @@ your mother
 
 <fb:login-button show-faces="true" width="200" max-rows="1"></fb:login-button>
 
-<a onclick="whatsMyName()">Whats my name?</a>
+<a href="#" onclick="whatsMyName()">Whats my name?</a>
 
 <script>
+
+  var FB = null;
 
   window.fbAsyncInit = function() {
     // init the FB JS SDK
@@ -15,10 +17,14 @@ your mother
       xfbml      : true                                  // Look for social plugins on the page
     });
 
-    // Additional initialization code such as adding Event Listeners goes here
+      // Additional initialization code such as adding Event Listeners goes here
   };
 //herpy derp
   // Load the SDK asynchronously
+
+
+
+
   (function(d, s, id){
      var js, fjs = d.getElementsByTagName(s)[0];
      if (d.getElementById(id)) {return;}
@@ -26,14 +32,11 @@ your mother
      js.src = "https://connect.facebook.net/en_US/all.js";
      fjs.parentNode.insertBefore(js, fjs);
    }(document, 'script', 'facebook-jssdk'));
-
-function whatsMyName() {
-		FB.api('/me', function(response) {
-	  alert('Your name is ' + response.name);
-	});
-}
-
   
-
+ function whatsMyName() {
+        FB.api('/me', function(response) {
+        alert('Your name is ' + response.name);
+      });
+    }
 
 </script>
