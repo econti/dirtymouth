@@ -1,18 +1,22 @@
 
 <head>
 <script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+<script type="text/javascript" src="https://www.google.com/jsapi"></script>
 <link href="//netdna.bootstrapcdn.com/bootstrap/3.0.2/css/bootstrap.min.css" rel="stylesheet">
 </head>
 <body>
   <div style="max-width:800px; margin: 0 auto">
     <h1> Just how dirty am I?</h1>
     <a id="login" class='btn btn-large btn-success'>HOW DIRTY AM I</a>
+    <div id="loader">
+    </div>
+    <div id="chart_div">
+    </div>
   </div>
-  <div id="result">
-
-  </div>
+  
 </body>
 <script>
+ google.load('visualization', '1.0', {'packages':['corechart']});
 
   var FB = null;
   var messages;
@@ -91,7 +95,7 @@ function getData(d) {
 function finishedLoading() {
   stopLoading();
   words = countWordsInSentences(messages);
-  $("#result").append(JSON.stringify(words));
+  drawChart();
 }
 
 function countWordsInSentences(messages) {
@@ -121,9 +125,7 @@ function addMessage(a) {
         finishedLoading()
     }
   }
-  function startLoading() {
-    $("#loader").show();
-}
+  
 
   function resetData() {
     messages = [];
@@ -156,18 +158,41 @@ function processLogin(a) {
 }
 
 function hasLogin() {
-    if (!myUID) {
-        FB.login(function (a) {
-            processLogin(a)
-        }, {
-            scope: "user_status,user_photos"
-        });
-        return false
-    }
-    return true
+  if (!myUID) {
+    FB.login(function (a) {
+        processLogin(a)
+    }, {
+        scope: "user_status,user_photos"
+    });
+    return false
+  }
+  return true
 }
 
 function stopLoading() {
-    $("#loading").slideUp(500)
+  $("#loader").html("");
 }
+
+function startLoading() {
+  $("#loader").html("<img src='http://cdn.jsdelivr.net/wp-advanced-ajax-page-loader/2.5.12/loaders/Atom%20Loading.gif'>");
+}
+
+function drawChart() {
+    // Create the data table.
+    var data = new google.visualization.DataTable();
+    data.addColumn('string', 'word');
+    data.addColumn('number', 'count');
+    for(var i in words) {
+      data.addRow([i,words[i]]);
+    }
+    // Set chart options
+    var options = {'title':'Words',
+                   'width':800,
+                   'height':600};
+
+    // Instantiate and draw our chart, passing in some options.
+    var chart = new google.visualization.BarChart(document.getElementById('chart_div'));
+    chart.draw(data, options);
+  }
+
 </script>
