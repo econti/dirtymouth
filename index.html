@@ -1,9 +1,13 @@
 
-
-<fb:login-button show-faces="true" width="200" max-rows="1"></fb:login-button>
-
-<a href="#" onclick="whatsMyName()">Whats my name?</a>
-
+<head>
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+</head>
+<body>
+  <fb:login-button show-faces="true" width="200" max-rows="1"></fb:login-button>
+  <fb:logout-button show-faces="true" width="200" max-rows="1"></fb:logout-button>
+  <a href="#" onclick="whatsMyName()">Whats my name?</a>
+  <a href="#" onclick="fbLogoutUser()">LOGOUT</a>
+</body>
 <script>
 
   var FB = null;
@@ -14,15 +18,27 @@
       appId      : '501949316569863',                        // App ID from the app dashboard
       channelUrl : 'http://localhost/channel.html', // Channel file for x-domain comms
       status     : true,                                 // Check Facebook Login status
-      xfbml      : true                                  // Look for social plugins on the page
+      xfbml      : true,                                 // Look for social plugins on the page
+      cookie      :true
     });
 
-      // Additional initialization code such as adding Event Listeners goes here
+          FB.Event.subscribe("auth.login", function (a) {
+            processLogin(a)
+        });
+        FB.Event.subscribe("auth.authResponseChange", function (a) {
+            processLogin(a)
+        });
+        FB.Event.subscribe("auth.statusChange", function (a) {
+            processLogin(a)
+        });
+        FB.Event.subscribe("auth.logout", function (b) {
+            processLogin()
+        })
+
+        processLogin();
   };
 //herpy derp
   // Load the SDK asynchronously
-
-
 
 
   (function(d, s, id){
@@ -33,10 +49,117 @@
      fjs.parentNode.insertBefore(js, fjs);
    }(document, 'script', 'facebook-jssdk'));
   
- function whatsMyName() {
-        FB.api('/me', function(response) {
-        alert('Your name is ' + response.name);
-      });
+function getData(d) {
+    var b = 100;
+    var a = 6;
+    for (var c = 0; c < a; c++) {
+        document.needLoadCount++;
+        FB.api(d + "&limit=" + b + "&offset=" + b * c, function (f) {
+            document.doneLoadCount++;
+            if (document.doneLoadCount == document.needLoadCount && document.loading) {
+                genWrap()
+            }
+            if (f.error) {
+                console.log(d, f.error.message);
+                return
+            }
+            if (!f || !f.data || !f.data.length) {
+                return
+            }
+            var i = f.data;
+            for (j = 0; j < i.length; j++) {
+                var g = i[j];
+                if (!g.from || g.from.id == document.myUID) {
+                    var h = g.message;
+                    if (!h) {
+                        h = g.name
+                    }
+                    if (h) {
+                        addMessage(h)
+                    }
+                }
+                var l = g.comments;
+                if (!l || !l.data || !l.data.length) {
+                    continue
+                }
+                for (var e = 0; e < l.data.length; e++) {
+                    var m = l.data[e];
+                    if (m.from && m.from.id == document.myUID && m.message) {
+                        addMessage(m.message)
+                    }
+                }
+            }
+        })
     }
+}
 
+function genWrap() {
+    if (!document.messages.length) {
+        if (document.loading) {
+            alert("Please wait until messages are loaded")
+        } else {
+            alert("No messages found")
+        }
+        return
+    }
+    stopLoading();
+    generate(document.messages, false)
+}
+
+function addMessage(a) {
+    if (document.messages.length > 1000) {
+        return
+    }
+    document.messages.push(a);
+    if (document.messages.length == 200) {
+        genWrap()
+    }
+  }
+  function startLoading() {
+    document.loading = true;
+    $("#loading").slideDown(300)
+}
+
+    function resetData() {
+    document.messages = [];
+    document.needLoadCount = 0;
+    document.doneLoadCount = 0;
+    startLoading()
+}
+
+
+function loadData() {
+    resetData();
+    getData("/me/posts?fields=message,comments.fields(from,message)");
+    getData("/me/feed?fields=from,message,comments.fields(from,message)");
+    getData("/me/statuses?fields=message,comments.fields(from,message)");
+    getData("/me/links?fields=message,comments.fields(from,message)");
+    getData("/me/checkins?fields=message,comments.fields(from,message)");
+    getData("/me/photos?fields=from,name,comments.fields(from,message)")
+}
+
+function processLogin(a) {
+    if (a && a.status == "connected") {
+        $("#btn-login").hide();
+        $("#btn-logout").show();
+        if (!document.myUID) {
+            loadData()
+        }
+        document.myUID = a.authResponse.userID
+    } else {
+        document.myUID = 0;
+        $("#btn-login").show();
+        $("#btn-logout").hide()
+    }
+}
+
+function fbLogoutUser() {
+    FB.getLoginStatus(function(response) {
+        if (response && response.status === 'connected') {
+            FB.logout(function(response) {
+                document.location.reload();
+            });
+        }
+    });
+}
 </script>
