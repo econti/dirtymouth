@@ -4,12 +4,15 @@
 <link href="//netdna.bootstrapcdn.com/bootstrap/3.0.2/css/bootstrap.min.css" rel="stylesheet">
 </head>
 <body>
-  <a id="login" class='btn btn-large btn-success'>HOW DIRTY AM I</a>
-  <a href="#" onclick="whatsMyName()">i b squirting</a>
+  <div style="max-width:800px">
+    <a id="login" class='btn btn-large btn-success'>HOW DIRTY AM I</a>
+  </div>
 </body>
 <script>
 
   var FB = null;
+  var messages;
+  var words;
 
   window.fbAsyncInit = function() {
     // init the FB JS SDK
@@ -105,11 +108,25 @@ function genWrap() {
         return
     }
     stopLoading();
-    generate(messages)
+    words = countWordsInSentences(messages);
 }
 
-function generate(d) {
-  //todo calculate dirtiness
+function countWordsInSentences(messages) {
+  var words = {};
+  for(var i in messages) {
+    var ws = messages[i].split(" ");
+    for (var i in ws) {
+      var w = ws[i].toLowerCase().replace(/[^a-z]/g,"");
+      if (w.length > 0) {
+        if (words[w]) {
+          words[w]++;
+        } else {
+          words[w] = 1;
+        }
+      }
+    }
+  } 
+  return words;
 }
 
 function addMessage(a) {
@@ -123,11 +140,12 @@ function addMessage(a) {
   }
   function startLoading() {
     loading = true;
-    $("#loading").slideDown(300)
+    $("#loader").show();
 }
 
     function resetData() {
     messages = [];
+    words = {};
     needLoadCount = 0;
     doneLoadCount = 0;
     startLoading()
