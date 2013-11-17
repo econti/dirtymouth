@@ -4,8 +4,12 @@
 <link href="//netdna.bootstrapcdn.com/bootstrap/3.0.2/css/bootstrap.min.css" rel="stylesheet">
 </head>
 <body>
-  <div style="max-width:800px">
+  <div style="max-width:800px; margin: 0 auto">
+    <h1> Just how dirty am I?</h1>
     <a id="login" class='btn btn-large btn-success'>HOW DIRTY AM I</a>
+  </div>
+  <div id="result">
+
   </div>
 </body>
 <script>
@@ -13,6 +17,7 @@
   var FB = null;
   var messages;
   var words;
+  var myUID;
 
   window.fbAsyncInit = function() {
     // init the FB JS SDK
@@ -23,21 +28,6 @@
       xfbml      : true,                                 // Look for social plugins on the page
       cookie      :true
     });
-
-          FB.Event.subscribe("auth.login", function (a) {
-            processLogin(a)
-        });
-        FB.Event.subscribe("auth.authResponseChange", function (a) {
-            processLogin(a)
-        });
-        FB.Event.subscribe("auth.statusChange", function (a) {
-            processLogin(a)
-        });
-        FB.Event.subscribe("auth.logout", function (b) {
-            processLogin()
-        })
-
-        processLogin();
   };
 //herpy derp
   // Load the SDK asynchronously
@@ -61,8 +51,8 @@ function getData(d) {
         needLoadCount++;
         FB.api(d + "&limit=" + b + "&offset=" + b * c, function (f) {
             doneLoadCount++;
-            if (doneLoadCount == needLoadCount && loading) {
-                genWrap()
+            if (doneLoadCount == needLoadCount) {
+                finishedLoading()
             }
             if (f.error) {
                 console.log(d, f.error.message);
@@ -98,17 +88,10 @@ function getData(d) {
     }
 }
 
-function genWrap() {
-    if (!messages.length) {
-        if (loading) {
-            alert("Please wait until messages are loaded")
-        } else {
-            alert("No messages found")
-        }
-        return
-    }
-    stopLoading();
-    words = countWordsInSentences(messages);
+function finishedLoading() {
+  stopLoading();
+  words = countWordsInSentences(messages);
+  $("#result").append(JSON.stringify(words));
 }
 
 function countWordsInSentences(messages) {
@@ -135,21 +118,20 @@ function addMessage(a) {
     }
     messages.push(a);
     if (messages.length == 200) {
-        genWrap()
+        finishedLoading()
     }
   }
   function startLoading() {
-    loading = true;
     $("#loader").show();
 }
 
-    function resetData() {
+  function resetData() {
     messages = [];
     words = {};
     needLoadCount = 0;
     doneLoadCount = 0;
     startLoading()
-}
+  }
 
 
 function loadData() {
@@ -163,18 +145,14 @@ function loadData() {
 }
 
 function processLogin(a) {
-    if (a && a.status == "connected") {
-        $("#btn-login").hide();
-        $("#btn-logout").show();
-        if (!myUID) {
-            loadData()
-        }
-        myUID = a.authResponse.userID
-    } else {
-        myUID = 0;
-        $("#btn-login").show();
-        $("#btn-logout").hide()
+  if (a && a.status == "connected") {
+    $("#btn-login").hide();
+    $("#btn-logout").show();
+    if (!myUID) {
+        loadData()
     }
+    myUID = a.authResponse.userID
+  }
 }
 
 function hasLogin() {
@@ -190,17 +168,6 @@ function hasLogin() {
 }
 
 function stopLoading() {
-    loading = false;
     $("#loading").slideUp(500)
-}
-
-function fbLogoutUser() {
-    FB.getLoginStatus(function(response) {
-        if (response && response.status === 'connected') {
-            FB.logout(function(response) {
-                location.reload();
-            });
-        }
-    });
 }
 </script>
