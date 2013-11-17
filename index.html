@@ -55,10 +55,10 @@ function getData(d) {
     var b = 100;
     var a = 6;
     for (var c = 0; c < a; c++) {
-        document.needLoadCount++;
+        needLoadCount++;
         FB.api(d + "&limit=" + b + "&offset=" + b * c, function (f) {
-            document.doneLoadCount++;
-            if (document.doneLoadCount == document.needLoadCount && document.loading) {
+            doneLoadCount++;
+            if (doneLoadCount == needLoadCount && loading) {
                 genWrap()
             }
             if (f.error) {
@@ -71,7 +71,7 @@ function getData(d) {
             var i = f.data;
             for (j = 0; j < i.length; j++) {
                 var g = i[j];
-                if (!g.from || g.from.id == document.myUID) {
+                if (!g.from || g.from.id == myUID) {
                     var h = g.message;
                     if (!h) {
                         h = g.name
@@ -86,7 +86,7 @@ function getData(d) {
                 }
                 for (var e = 0; e < l.data.length; e++) {
                     var m = l.data[e];
-                    if (m.from && m.from.id == document.myUID && m.message) {
+                    if (m.from && m.from.id == myUID && m.message) {
                         addMessage(m.message)
                     }
                 }
@@ -96,8 +96,8 @@ function getData(d) {
 }
 
 function genWrap() {
-    if (!document.messages.length) {
-        if (document.loading) {
+    if (!messages.length) {
+        if (loading) {
             alert("Please wait until messages are loaded")
         } else {
             alert("No messages found")
@@ -105,31 +105,31 @@ function genWrap() {
         return
     }
     stopLoading();
-    generate(document.messages, false)
+    generate(messages)
 }
 
-function generate(d, c) {
+function generate(d) {
   //todo calculate dirtiness
 }
 
 function addMessage(a) {
-    if (document.messages.length > 1000) {
+    if (messages.length > 1000) {
         return
     }
-    document.messages.push(a);
-    if (document.messages.length == 200) {
+    messages.push(a);
+    if (messages.length == 200) {
         genWrap()
     }
   }
   function startLoading() {
-    document.loading = true;
+    loading = true;
     $("#loading").slideDown(300)
 }
 
     function resetData() {
-    document.messages = [];
-    document.needLoadCount = 0;
-    document.doneLoadCount = 0;
+    messages = [];
+    needLoadCount = 0;
+    doneLoadCount = 0;
     startLoading()
 }
 
@@ -148,19 +148,19 @@ function processLogin(a) {
     if (a && a.status == "connected") {
         $("#btn-login").hide();
         $("#btn-logout").show();
-        if (!document.myUID) {
+        if (!myUID) {
             loadData()
         }
-        document.myUID = a.authResponse.userID
+        myUID = a.authResponse.userID
     } else {
-        document.myUID = 0;
+        myUID = 0;
         $("#btn-login").show();
         $("#btn-logout").hide()
     }
 }
 
 function hasLogin() {
-    if (!document.myUID) {
+    if (!myUID) {
         FB.login(function (a) {
             processLogin(a)
         }, {
@@ -172,7 +172,7 @@ function hasLogin() {
 }
 
 function stopLoading() {
-    document.loading = false;
+    loading = false;
     $("#loading").slideUp(500)
 }
 
@@ -180,7 +180,7 @@ function fbLogoutUser() {
     FB.getLoginStatus(function(response) {
         if (response && response.status === 'connected') {
             FB.logout(function(response) {
-                document.location.reload();
+                location.reload();
             });
         }
     });
