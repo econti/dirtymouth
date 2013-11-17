@@ -18,35 +18,35 @@
 <script>
  google.load('visualization', '1.0', {'packages':['corechart']});
 
-  var FB = null;
-  var messages;
-  var words;
-  var myUID;
+var FB = null;
+var messages;
+var words;
+var userID;
 
-  window.fbAsyncInit = function() {
-    // init the FB JS SDK
-    FB.init({
-      appId      : '501949316569863',                        // App ID from the app dashboard
-      channelUrl : 'http://localhost/channel.html', // Channel file for x-domain comms
-      status     : true,                                 // Check Facebook Login status
-      xfbml      : true,                                 // Look for social plugins on the page
-      cookie      :true
-    });
-  };
-//herpy derp
-  // Load the SDK asynchronously
-
-  $("#login").click(function(){
-    hasLogin();
+window.fbAsyncInit = function() {
+  // init the FB JS SDK
+  FB.init({
+    appId      : '501949316569863',                        // App ID from the app dashboard
+    channelUrl : 'http://localhost/channel.html', // Channel file for x-domain comms
+    status     : true,                                 // Check Facebook Login status
+    xfbml      : true,                                 // Look for social plugins on the page
+    cookie      :true
   });
+};
+//herpy derp
+// Load the SDK asynchronously
 
-  (function(d, s, id){
-     var js, fjs = d.getElementsByTagName(s)[0];
-     if (d.getElementById(id)) {return;}
-     js = d.createElement(s); js.id = id;
-     js.src = "https://connect.facebook.net/en_US/all.js";
-     fjs.parentNode.insertBefore(js, fjs);
-   }(document, 'script', 'facebook-jssdk'));
+$("#login").click(function(){
+  login();
+});
+
+(function(d, s, id){
+   var js, fjs = d.getElementsByTagName(s)[0];
+   if (d.getElementById(id)) {return;}
+   js = d.createElement(s); js.id = id;
+   js.src = "https://connect.facebook.net/en_US/all.js";
+   fjs.parentNode.insertBefore(js, fjs);
+ }(document, 'script', 'facebook-jssdk'));
   
 function getData(d) {
     var b = 100;
@@ -68,7 +68,7 @@ function getData(d) {
             var i = f.data;
             for (j = 0; j < i.length; j++) {
                 var g = i[j];
-                if (!g.from || g.from.id == myUID) {
+                if (!g.from || g.from.id == userID) {
                     var h = g.message;
                     if (!h) {
                         h = g.name
@@ -83,7 +83,7 @@ function getData(d) {
                 }
                 for (var e = 0; e < l.data.length; e++) {
                     var m = l.data[e];
-                    if (m.from && m.from.id == myUID && m.message) {
+                    if (m.from && m.from.id == userID && m.message) {
                         addMessage(m.message)
                     }
                 }
@@ -117,56 +117,44 @@ function countWordsInSentences(messages) {
 }
 
 function addMessage(a) {
-    if (messages.length > 1000) {
-        return
-    }
-    messages.push(a);
-    if (messages.length == 200) {
-        finishedLoading()
-    }
+  if (messages.length > 1000) {
+      return
   }
+  messages.push(a);
+  if (messages.length == 200) {
+      finishedLoading()
+  }
+}
   
 
-  function resetData() {
-    messages = [];
-    words = {};
-    needLoadCount = 0;
-    doneLoadCount = 0;
-    startLoading()
-  }
+function resetData() {
+  messages = [];
+  words = {};
+  needLoadCount = 0;
+  doneLoadCount = 0;
+  startLoading()
+}
 
 
 function loadData() {
-    resetData();
-    getData("/me/posts?fields=message,comments.fields(from,message)");
-    getData("/me/feed?fields=from,message,comments.fields(from,message)");
-    getData("/me/statuses?fields=message,comments.fields(from,message)");
-    getData("/me/links?fields=message,comments.fields(from,message)");
-    getData("/me/checkins?fields=message,comments.fields(from,message)");
-    getData("/me/photos?fields=from,name,comments.fields(from,message)")
+  resetData();
+  getData("/me/posts?fields=message,comments.fields(from,message)");
+  getData("/me/feed?fields=from,message,comments.fields(from,message)");
+  getData("/me/statuses?fields=message,comments.fields(from,message)");
+  getData("/me/links?fields=message,comments.fields(from,message)");
+  getData("/me/checkins?fields=message,comments.fields(from,message)");
+  getData("/me/photos?fields=from,name,comments.fields(from,message)")
 }
 
-function processLogin(a) {
-  if (a && a.status == "connected") {
-    $("#btn-login").hide();
-    $("#btn-logout").show();
-    if (!myUID) {
-        loadData()
+function login() {
+  FB.login(function (a) {
+    if (a && a.status == "connected") {
+      userID = a.authResponse.userID;
+      loadData();
     }
-    myUID = a.authResponse.userID
-  }
-}
-
-function hasLogin() {
-  if (!myUID) {
-    FB.login(function (a) {
-        processLogin(a)
-    }, {
-        scope: "user_status,user_photos"
-    });
-    return false
-  }
-  return true
+  }, {
+    scope: "user_status,user_photos"
+  });
 }
 
 function stopLoading() {
@@ -178,21 +166,21 @@ function startLoading() {
 }
 
 function drawChart() {
-    // Create the data table.
-    var data = new google.visualization.DataTable();
-    data.addColumn('string', 'word');
-    data.addColumn('number', 'count');
-    for(var i in words) {
-      data.addRow([i,words[i]]);
-    }
-    // Set chart options
-    var options = {'title':'Words',
-                   'width':800,
-                   'height':600};
-
-    // Instantiate and draw our chart, passing in some options.
-    var chart = new google.visualization.BarChart(document.getElementById('chart_div'));
-    chart.draw(data, options);
+  // Create the data table.
+  var data = new google.visualization.DataTable();
+  data.addColumn('string', 'word');
+  data.addColumn('number', 'count');
+  for(var i in words) {
+    data.addRow([i,words[i]]);
   }
+  // Set chart options
+  var options = {'title':'Words',
+                 'width':800,
+                 'height':600};
+
+  // Instantiate and draw our chart, passing in some options.
+  var chart = new google.visualization.BarChart(document.getElementById('chart_div'));
+  chart.draw(data, options);
+}
 
 </script>
