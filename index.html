@@ -118,14 +118,14 @@ var scores = {
 "enema":14,
 "f u c k":50,
 "f u c k e r":50,
-"fag":50,
+"fag":90,
 "fag1t":29,
 "faget":26,
 "fagg1t":11,
 "faggit":31,
-"faggot":50,
+"faggot":100,
 "fagit":40,
-"fags":50,
+"fags":90,
 "fagz":46,
 "faig":39,
 "faigs":10,
@@ -159,6 +159,7 @@ var scores = {
 "h0re":48,
 "hells":48,
 "hoar":50,
+"homo": 45,
 "hoor":44,
 "hoore":27,
 "jackoff":21,
@@ -586,6 +587,7 @@ function finishedLoading() {
   words = countWordsInSentences(messages); 
 
   counts = vulgarCount(messages);
+  $("#shitlist-list").before("contact us at dirtymouthguys@gmail.com");
 
   for (var i=0; i<500; i++) {
     if (!counts[i] || counts[i][1] == 0) break;
