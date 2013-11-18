@@ -40,6 +40,8 @@
     <div id="loader">
     </div>
     <div id='shitList' style="padding-top:20px;">
+      <div id='clean'>
+      </div>
       <ol id="shitlist-list">
       </ol>
     </div>
@@ -589,6 +591,11 @@ function finishedLoading() {
   words = countWordsInSentences(messages); 
 
   counts = vulgarCount(messages);
+  
+  if (counts.length == 0) {
+    $("#clean").html("<h2>Congrats. You have a clean mouth :)</h2><a id='share' class='btn btn-large btn-info' onclick=\"share('My mouth is clean :)')\">Share your clean mouth</a>");
+
+  }
 
   for (var i=0; i<500; i++) {
     if (!counts[i] || counts[i][1] == 0) break;
