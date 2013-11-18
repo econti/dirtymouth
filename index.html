@@ -554,8 +554,14 @@ function getData(d) {
                     if (!h) {
                         h = g.name
                     }
+                    var isPhoto = false;
+                    if(g.from) {
+                      isPhoto = true;
+                    }
                     if (h) {
-                        addMessage(h)
+                        var tokens = g.id.split("_");
+                        var id = tokens[tokens.length - 1]; 
+                        addMessage([h, id, isPhoto])
                     }
                 }
                 var l = g.comments;
@@ -565,7 +571,9 @@ function getData(d) {
                 for (var e = 0; e < l.data.length; e++) {
                     var m = l.data[e];
                     if (m.from && m.from.id == userID && m.message) {
-                        addMessage(m.message)
+                        var tokens = m.id.split("_");
+                        var id = tokens[tokens.length - 1]; 
+                        addMessage([m.message, id, false])
                     }
                 }
             }
@@ -579,9 +587,9 @@ function finishedLoading() {
 
   counts = vulgarCount(messages);
 
-  for (var i=0; i<100; i++) {
+  for (var i=0; i<500; i++) {
     if (!counts[i] || counts[i][1] == 0) break;
-    $("#shitlist-list").append("<li class='panel panel-default' style='font-size:20px;padding:10px;'>" + counts[i][0].replace(/"/,"").replace(/\"/,"") + "<br><br><a id='share' class='btn btn-large btn-info' onclick=\"share('" + counts[i][0].replace(/"/,"").replace(/\"/,"").replace(/'/,"\\'") + "');\">SHARE THIS SHIT</a><br></li>");
+    $("#shitlist-list").append("<li class='panel panel-default' style='font-size:20px;padding:10px;'>" + counts[i][0].replace(/"/,"").replace(/\"/,"") + "<br><br><a id='share' class='btn btn-large btn-info' onclick=\"share('" + counts[i][0].replace(/"/,"").replace(/\"/,"").replace(/'/,"\\'") + "');\">SHARE THIS SHIT</a><br><br><a class='btn btn-large btn-danger' target=\"_blank\" href=\"https://www.facebook.com/" + userID + "/" + (counts[i][3] ? "photos/" + counts[i][2] : "posts/" + counts[i][2] )+ "\">I don't think this was a good idea...</a></li>");
   }
 
   $("#share").show();
@@ -590,13 +598,13 @@ function finishedLoading() {
 function vulgarCount(messageArray) {
   var offensive = [];
   for (var n in messageArray){
-    var ws = messageArray[n].split(" ");
+    var ws = messageArray[n][0].split(" ");
     var vulgarity = 0;
     for (var i in ws) {
       var w = ws[i].toLowerCase().replace(/[^a-z]/g,"");
       vulgarity += scores[w] || 0;      
     }
-    offensive.push([messageArray[n].toString(), vulgarity]);
+    offensive.push([messageArray[n][0].toString(), vulgarity, messageArray[n][1], messageArray[n][2]]);
   }
   return offensive.sort(function(a,b) {
     return b[1]-a[1];
@@ -607,7 +615,7 @@ function vulgarCount(messageArray) {
 function countWordsInSentences(messages) {
   var words = {};
   for(var i in messages) {
-    var ws = messages[i].split(" ");
+    var ws = messages[i][0].split(" ");
     for (var i in ws) {
       var w = ws[i].toLowerCase().replace(/[^a-z]/g,"");
       if (w.length > 0) {
