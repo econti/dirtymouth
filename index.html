@@ -199,7 +199,7 @@ function finishedLoading() {
   counts = vulgarCount(messages);
 
   for (var i=0; i<10; i++) {
-    $("#shitlist-list").append("<li class='panel panel-default' style='font-size:20px;padding:10px;'>" + counts[i][0] + "<br><br><a id='share' class='btn btn-large btn-info' onclick=\"share('" + counts[i][0].replace(/"/,"").replace(/'/,"\\'") + "');\">SHARE THIS SHIT</a><br></li>");
+    $("#shitlist-list").append("<li class='panel panel-default' style='font-size:20px;padding:10px;'>" + counts[i][0] + "<br><br><a id='share' class='btn btn-large btn-info' onclick=\"share('" + counts[i][0].replace(/\"/,"").replace(/'/,"\\'") + "');\">SHARE THIS SHIT</a><br></li>");
   }
 
   $("#share").show();
