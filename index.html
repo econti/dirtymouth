@@ -37,6 +37,7 @@
     <a id="login" class='btn btn-danger btn-xlarge' style="display:none;margin-right:10px;">Oh dear, what have I said?</a>
     <div id="loader">
     </div>
+    contact us at dirtymouthguys@gmail.com
     <div id='shitList' style="padding-top:20px;">
       <ol id="shitlist-list">
       </ol>
@@ -587,7 +588,6 @@ function finishedLoading() {
   words = countWordsInSentences(messages); 
 
   counts = vulgarCount(messages);
-  $("#shitlist-list").before("contact us at dirtymouthguys@gmail.com");
 
   for (var i=0; i<500; i++) {
     if (!counts[i] || counts[i][1] == 0) break;
