@@ -1,43 +1,143 @@
-
+<!DOCTYPE html>
+<html>
 <head>
+<title>Dirtymouth!</title>
 <script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
 <script type="text/javascript" src="https://www.google.com/jsapi"></script>
-<link href="//netdna.bootstrapcdn.com/bootstrap/3.0.2/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.2/css/bootstrap.min.css">
+<script src="//netdna.bootstrapcdn.com/bootstrap/3.0.2/js/bootstrap.min.js"></script>
+<style>
+.btn-xlarge {
+    padding: 18px 28px;
+    font-size: 22px; //change this to your desired size
+    line-height: normal;
+    -webkit-border-radius: 8px;
+       -moz-border-radius: 8px;
+            border-radius: 8px;
+}
+</style>
+
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-45819348-1', 'yourdirtymouth.com');
+  ga('send', 'pageview');
+
+</script>
+
 </head>
 <body>
-  <div style="max-width:800px; margin: 0 auto">
-    <h1> Just how dirty am I?</h1>
-    <a id="login" class='btn btn-large btn-success'>HOW DIRTY AM I</a>
+  <div style="max-width:800px; padding-top:20px;margin: 0 auto">
+    <span style="font-size:50px;"> Dirtymouth</span>
+    <img style="margin-left:10px;height:100px;" src="https://s3.amazonaws.com/www.yourdirtymouth.com/rsz_smile.png">
+    <h3>Reminding you of the most offensive things you've ever said on facebook.</h3><br>
+    <a id="login" class='btn btn-danger btn-xlarge' style="display:none;margin-right:10px;">Politics weren't for me anyway</a>
     <div id="loader">
     </div>
-    <div id="chart_div">
+    <div id='shitList' style="padding-top:20px;">
+      <ol id="shitlist-list">
+      </ol>
     </div>
   </div>
-  
+
+
+
 </body>
+
 <script>
- google.load('visualization', '1.0', {'packages':['corechart']});
 
 var FB = null;
 var messages;
 var words;
+var counts;
 var userID;
 
+var scores = {
+  "dang": 5,
+  "ass" :31,
+  "fuck" : 45,
+  "butt" : 15,
+  "penis": 49,
+  "kike": 80,
+  "hitler": 50,
+  "spic": 45,
+  "wetback": 30,
+  "chink": 20,
+  "chinaman": 10,
+  "gook": 22,
+  "cum": 14,
+  "douche": 19,
+  "douchebag": 29,
+  "motorboat": 12,
+  "tit": 12,
+  "tits": 19,
+  "titties": 20,
+  "nog": 30,
+  "whore": 10,
+  "slut": 11,
+  "bitch": 14,
+  "cumming":16,
+  "nigger": 1000,
+  "cunt": 70,
+  "fucked": 38,
+  "fucker": 39,
+  "fucks" : 37,
+  "fucking": 35,
+  "balls": 40,
+  "dick": 30,
+  "jew": 30,
+  "nigga": 30,
+  "shit" : 43,
+  "cock" : 32,
+  "beer" : 12,
+  "bud": 23,
+  "marijuana" : 40,
+  "high" : 10,
+  "vagina" : 30,
+  "pussy" : 45,
+  "ballsac" : 30,
+  "weed" : 35,
+  "puke" : 35,
+  "vomit" : 25,
+  "gross" : 10,
+  "drank" : 15,
+  "wasted" : 40,
+  "bro" : 10,
+  "poop" : 30,
+  "drunk" : 25,
+  "horny": 25
+};
+
 window.fbAsyncInit = function() {
+  //prod: 1420062641557251
+  //dev: 501949316569863
   // init the FB JS SDK
   FB.init({
-    appId      : '501949316569863',                        // App ID from the app dashboard
-    channelUrl : 'http://localhost/channel.html', // Channel file for x-domain comms
+    appId      : '1420062641557251',                        // App ID from the app dashboard
+    channelUrl : 'http://www.yourdirtymouth.com/channel.html', // Channel file for x-domain comms
     status     : true,                                 // Check Facebook Login status
     xfbml      : true,                                 // Look for social plugins on the page
     cookie      :true
   });
+
+  $("#login").show();
+
 };
 //herpy derp
 // Load the SDK asynchronously
-
 $("#login").click(function(){
   login();
+});
+
+$("#logout").click(function(){
+  
+  FB.logout(function(response) {
+    $("#shitlist-list").html($("<h3>").html("This never happened."));
+  });
+  
 });
 
 (function(d, s, id){
@@ -94,9 +194,33 @@ function getData(d) {
 
 function finishedLoading() {
   stopLoading();
-  words = countWordsInSentences(messages);
-  drawChart();
+  words = countWordsInSentences(messages); 
+
+  counts = vulgarCount(messages);
+
+  for (var i=0; i<10; i++) {
+    $("#shitlist-list").append("<li class='panel panel-default' style='font-size:20px;padding:10px;'>" + counts[i][0] + "<br><br><a id='share' class='btn btn-large btn-info' onclick=\"share('" + counts[i][0].replace(/"/,"").replace(/'/,"\\'") + "');\">SHARE THIS SHIT</a><br></li>");
+  }
+
+  $("#share").show();
 }
+
+function vulgarCount(messageArray) {
+  var offensive = [];
+  for (var n in messageArray){
+    var ws = messageArray[n].split(" ");
+    var vulgarity = 0;
+    for (var i in ws) {
+      var w = ws[i].toLowerCase().replace(/[^a-z]/g,"");
+      vulgarity += scores[w] || 0;      
+    }
+    offensive.push([messageArray[n].toString(), vulgarity]);
+  }
+  return offensive.sort(function(a,b) {
+    return b[1]-a[1];
+  });
+}
+
 
 function countWordsInSentences(messages) {
   var words = {};
@@ -121,9 +245,6 @@ function addMessage(a) {
       return
   }
   messages.push(a);
-  if (messages.length == 200) {
-      finishedLoading()
-  }
 }
   
 
@@ -155,6 +276,7 @@ function login() {
   }, {
     scope: "user_status,user_photos"
   });
+  $("#shitlist-list").html($("<h3>").html(""));
 }
 
 function stopLoading() {
@@ -162,25 +284,20 @@ function stopLoading() {
 }
 
 function startLoading() {
-  $("#loader").html("<img src='http://cdn.jsdelivr.net/wp-advanced-ajax-page-loader/2.5.12/loaders/Atom%20Loading.gif'>");
+  $("#loader").html("<img src='http://jimpunk.net/Loading/wp-content/uploads/loading1.gif'>");
 }
 
-function drawChart() {
-  // Create the data table.
-  var data = new google.visualization.DataTable();
-  data.addColumn('string', 'word');
-  data.addColumn('number', 'count');
-  for(var i in words) {
-    data.addRow([i,words[i]]);
-  }
-  // Set chart options
-  var options = {'title':'Words',
-   'width':800,
-   'height':600};
+ var share = function(shitToShare) {
+  FB.ui({
+      method: "feed",
+      display: "iframe",
+      link: "http://yourdirtymouth.com/",
+      caption: "My most offensive comments. How dirty is YOUR mouth?",
+      description: shitToShare,
+      picture: "http://example.com/image.png"
+  });
+};
 
-  // Instantiate and draw our chart, passing in some options.
-  var chart = new google.visualization.BarChart(document.getElementById('chart_div'));
-  chart.draw(data, options);
-}
 
 </script>
+</html>
