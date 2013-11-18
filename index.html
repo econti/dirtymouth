@@ -580,7 +580,7 @@ function finishedLoading() {
   counts = vulgarCount(messages);
 
   for (var i=0; i<100; i++) {
-    if (!counts[i] || count[i][0] == 0) break;
+    if (!counts[i] || counts[i][0] == 0) break;
     $("#shitlist-list").append("<li class='panel panel-default' style='font-size:20px;padding:10px;'>" + counts[i][0].replace(/"/,"").replace(/\"/,"") + "<br><br><a id='share' class='btn btn-large btn-info' onclick=\"share('" + counts[i][0].replace(/"/,"").replace(/\"/,"").replace(/'/,"\\'") + "');\">SHARE THIS SHIT</a><br></li>");
   }
 
