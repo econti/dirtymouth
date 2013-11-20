@@ -55,8 +55,31 @@ var messages;
 var words;
 var counts;
 var userID;
-
 var scores = {
+"my boss is an asshole": 30,
+"I hate my life": 50,
+"hate my job": 30,
+"whacking off": 20,
+"jerking": 20,
+"puke": 15,
+"puked": 25,
+"drunk": 20,
+"wasted": 15,
+"fisting": 30,
+"fingering": 25,
+"fingered": 20,
+"flip the beanbag": 100,
+"shat": 15,
+"diarrhea":20,
+"plastered":15,
+"schwasted":17,
+"black out": 20,
+"hangover": 20,
+"hungover": 20,
+"hung over": 20,
+"hang over": 20,
+"blackout": 30,
+"cocaine":35,
 "ahole":20,
 "anus":20,
 "ash0le":20,
@@ -78,7 +101,7 @@ var scores = {
 "bastardz":25,
 "basterds":25,
 "basterdz":25,
-"Biatch":25,
+"Biatch":2,
 "bitch":30,
 "bitches":30,
 "Blow Job":30,
@@ -112,6 +135,7 @@ var scores = {
 "dildos":34,
 "dilld0":22,
 "dilld0s":24,
+"doosher":35,
 "dominatricks":44,
 "dominatrics":26,
 "dominatrix":16,
@@ -132,7 +156,8 @@ var scores = {
 "faigs":10,
 "fart":28,
 "flipping the bird":42,
-"fuck":17,
+"fuck":50,
+"fucked":45,
 "fucker":50,
 "fuckin":50,
 "fucking":50,
@@ -149,11 +174,7 @@ var scores = {
 "Fukker":21,
 "Fukkin":28,
 "g00k":44,
-"gay":50,
-"gayboy":31,
-"gaygirl":13,
-"gays":36,
-"gayz":16,
+"so gay":10,
 "God-damned":25,
 "h00r":37,
 "h0ar":16,
@@ -207,6 +228,7 @@ var scores = {
 "n1gr":23,
 "nastt":42,
 "nigger;":41,
+"nig": 45,
 "nigur;":12,
 "niiger;":33,
 "niigr;":38,
@@ -305,6 +327,7 @@ var scores = {
 "vullva":16,
 "vulva":12,
 "w0p":11,
+"weed":25,
 "wh00r":38,
 "wh0re":18,
 "whore":15,
@@ -456,7 +479,6 @@ var scores = {
 "porn":17,
 "p0rn":39,
 "pr0n":15,
-"preteen":16,
 "pula":11,
 "pule":28,
 "puta":49,
@@ -468,7 +490,7 @@ var scores = {
 "scheiss*":10,
 "schlampe":24,
 "schmuck":16,
-"screw":50,
+"screw":39,
 "sh!t*":34,
 "sharmuta":45,
 "sharmute":28,
@@ -584,8 +606,6 @@ function getData(d) {
 
 function finishedLoading() {
   stopLoading();
-  words = countWordsInSentences(messages); 
-
   counts = vulgarCount(messages);
   
   if (counts.length == 0) {
@@ -604,36 +624,16 @@ function finishedLoading() {
 function vulgarCount(messageArray) {
   var offensive = [];
   for (var n in messageArray){
-    var ws = messageArray[n][0].split(" ");
     var vulgarity = 0;
-    for (var i in ws) {
-      var w = ws[i].toLowerCase().replace(/[^a-z]/g,"");
-      vulgarity += scores[w] || 0;      
+    for (var key in scores) {
+      m = messageArray[n][0].match(new RegExp(key,"gi"));
+      if (m) vulgarity += m.length * scores[key];   
     }
     if (vulgarity > 0) offensive.push([messageArray[n][0].toString(), vulgarity, messageArray[n][1], messageArray[n][2]]);
   }
   return offensive.sort(function(a,b) {
     return b[1]-a[1];
   });
-}
-
-
-function countWordsInSentences(messages) {
-  var words = {};
-  for(var i in messages) {
-    var ws = messages[i][0].split(" ");
-    for (var i in ws) {
-      var w = ws[i].toLowerCase().replace(/[^a-z]/g,"");
-      if (w.length > 0) {
-        if (words[w]) {
-          words[w]++;
-        } else {
-          words[w] = 1;
-        }
-      }
-    }
-  } 
-  return words;
 }
 
 function addMessage(a) {
@@ -646,7 +646,6 @@ function addMessage(a) {
 
 function resetData() {
   messages = [];
-  words = {};
   needLoadCount = 0;
   doneLoadCount = 0;
   startLoading()
