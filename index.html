@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Dirtymouth!</title>
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+<script type="text/javascript" src="https://www.google.com/jsapi"></script>
+<link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.2/css/bootstrap.min.css">
+<script src="//netdna.bootstrapcdn.com/bootstrap/3.0.2/js/bootstrap.min.js"></script>
+<meta name="description" content="Take back or share the most offensive things you've said on facebook.">
+<style>
+.btn-xlarge {
+    padding: 18px 28px;
+    font-size: 22px; //change this to your desired size
+    line-height: normal;
+    -webkit-border-radius: 8px;
+       -moz-border-radius: 8px;
+            border-radius: 8px;
+}
+</style>
+
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-45819348-1', 'yourdirtymouth.com');
+  ga('send', 'pageview');
+
+</script>
+
+</head>
+<body>
+  <div style="max-width:800px; padding-top:20px;margin: 0 auto">
+    <span style="font-size:50px;"> Dirtymouth</span>
+    <img style="margin-left:10px;height:100px;" src="https://s3.amazonaws.com/www.yourdirtymouth.com/rsz_smile.png">
+    <div style="float:right;margin-right:29px;" class="fb-like" data-href="https://www.facebook.com/yourdirtymouth" data-layout="box_count" data-action="like" data-show-faces="false" data-share="true"></div>
+    <div style="float:right;padding-left:20px;"><a href="https://twitter.com/share" class="twitter-share-button" data-url="http://www.yourdirtymouth.com" data-text="Find out how offensive you've been on facebook." data-via="yourdirtymouth" data-hashtags="dirtymouth">Tweet</a>
+<script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+'://platform.twitter.com/widgets.js';fjs.parentNode.insertBefore(js,fjs);}}(document, 'script', 'twitter-wjs');</script></div>
+    <h3>Take back or share the most offensive things you've said on facebook (if you want).</h3><br>
+    <a id="login" class='btn btn-danger btn-xlarge' style="display:none;margin-right:10px;">Oh dear, what have I said?</a>
+    <br><br>
+    contact us at dirtymouthguys@gmail.com | <a href="/privacy.html" target="_blank">privacy policy</a>
+    <div id="loader">
+    </div>
+    <div id='shitList' style="padding-top:20px;">
+      <div id='clean'>
+      </div>
+      <ol id="shitlist-list">
+      </ol>
+    </div>
+  </div>
+  <div id="fb-root"></div>
+</body>
+
+<script>
+var messages;
+var words;
+var counts;
+var userID;
+
+var phrases = {
+//very dirty phrases
+}
+
+var scores = {
+//very dirty words and offensiveness scores
+};
+
+window.fbAsyncInit = function() {
+  //prod: 1420062641557251
+  //dev: 501949316569863
+  // init the FB JS SDK
+  FB.init({
+    //fb stuff
+  });
+
+$("#login").show();
+};
+//herpy derp
+// Load the SDK asynchronously
+$("#login").click(function(){
+  login();
+});
+
+$("#logout").click(function(){
+  
+  FB.logout(function(response) {
+    $("#shitlist-list").html($("<h3>").html("This never happened."));
+  });
+  
+});
+
+(function(d, s, id){
+   var js, fjs = d.getElementsByTagName(s)[0];
+   if (d.getElementById(id)) {return;}
+   js = d.createElement(s); js.id = id;
+   js.src = "https://connect.facebook.net/en_US/all.js";
+   fjs.parentNode.insertBefore(js, fjs);
+ }(document, 'script', 'facebook-jssdk'));
+  
+function getData(d) {
+    var b = 100;
+    var a = 6;
+    for (var c = 0; c < a; c++) {
+        needLoadCount++;
+        FB.api(d + "&limit=" + b + "&offset=" + b * c, function (f) {
+            doneLoadCount++;
+            if (doneLoadCount == needLoadCount) {
+                finishedLoading();
+            }
+            if (f.error) {
+                console.log(d, f.error.message);
+                return
+            }
+            if (!f || !f.data || !f.data.length) {
+                return
+            }
+            var i = f.data;
+            for (j = 0; j < i.length; j++) {
+                var g = i[j];
+                if(g.from) {
+                  isPhoto = true;
+                }
+                if (!g.from || g.from.id == userID) {
+                    var h = g.message;
+                    if (!h) {
+                        h = g.name
+                    }
+                    var isPhoto = false;
+                    if (h) {
+                        // var tokens = g.id.split("_");
+                        // var id = tokens[tokens.length - 1]; 
+                        addMessage([h, g.id, isPhoto])
+                    }
+                }
+                var l = g.comments;
+                if (!l || !l.data || !l.data.length) {
+                    continue
+                }
+                for (var e = 0; e < l.data.length; e++) {
+                    var m = l.data[e];
+                    if (m.from && m.from.id == userID && m.message) {
+                        // var tokens = m.id.split("_");
+                        // var id = tokens[tokens.length - 1]; 
+                        addMessage([m.message, m.id, isPhoto])
+                    }
+                }
+            }
+        })
+    }
+}
+
+function finishedLoading() {
+  stopLoading();
+  counts = vulgarCount(messages);
+  
+  if (counts.length == 0) {
+    $("#clean").html("<h2>Congrats. You have a clean mouth :)</h2><a id='share' class='btn btn-large btn-info' onclick=\"share('My mouth is clean :)')\">Share your clean mouth</a>");
+
+  }
+
+  for (var i=0; i<500; i++) {
+    if (!counts[i] || counts[i][1] == 0) break;
+    $("#shitlist-list").append("<li class='panel panel-default' style='font-size:20px;padding:10px;'>" + counts[i][0].replace(/"/g,"").replace(/\"/g,"") + "<br><br><a id='share' class='btn btn-large btn-info' onclick=\"share('" + counts[i][0].replace(/"/g,"").replace(/\"/g,"").replace(/'/g,"\\'").replace(/\n/g," ") + "');\">Share this again!</a><br><br><a class='btn btn-large btn-danger' target=\"_blank\" href=\"https://www.facebook.com/" + (counts[i][3] ? "photo.php?fbid=" + counts[i][2] : userID + "/posts/" + counts[i][2] )+ "\">I don't think this was a good idea...</a></li>");
+  }
+
+  $("#share").show();
+}
+
+function vulgarCount(messageArray) {
+  var offensive = [];
+  for (var n in messageArray){
+    var vulgarity = 0;
+    for (var key in phrases) {
+      m = messageArray[n][0].match(new RegExp(key,"gi"));
+      if (m) vulgarity += m.length * scores[key];   
+    }
+    var ws = messageArray[n][0].split(" ");
+    for (var i in ws) {
+      var w = ws[i].toLowerCase().replace(/[^a-z]/g,"");
+      vulgarity += scores[w] || 0;      
+    }
+    if (vulgarity > 0) offensive.push([messageArray[n][0].toString(), vulgarity, messageArray[n][1], messageArray[n][2]]);
+  }
+  return offensive.sort(function(a,b) {
+    return b[1]-a[1];
+  });
+}
+
+function addMessage(a) {
+  if (messages.length > 1000) {
+      return
+  }
+  messages.push(a);
+}
+  
+
+function resetData() {
+  messages = [];
+  needLoadCount = 0;
+  doneLoadCount = 0;
+  startLoading()
+}
+
+
+function loadData() {
+  resetData();
+  getData("/me/posts?fields=message,comments.fields(from,message)");
+  getData("/me/feed?fields=from,message,comments.fields(from,message)");
+  getData("/me/statuses?fields=message,comments.fields(from,message)");
+  getData("/me/links?fields=message,comments.fields(from,message)");
+  getData("/me/checkins?fields=message,comments.fields(from,message)");
+  getData("/me/photos?fields=from,name,comments.fields(from,message)")
+}
+
+function login() {
+  FB.login(function (a) {
+    if (a && a.status == "connected") {
+      userID = a.authResponse.userID;
+      loadData();
+    }
+  }, {
+    scope: "user_status,user_photos"
+  });
+  $("#shitlist-list").html($("<h3>").html(""));
+}
+
+function stopLoading() {
+  $("#loader").html("");
+}
+
+function startLoading() {
+  $("#loader").html("<img src='http://jimpunk.net/Loading/wp-content/uploads/loading1.gif'>");
+}
+
+ var share = function(shitToShare) {
+  FB.ui({
+      method: "feed",
+      display: "iframe",
+      link: "http://yourdirtymouth.com/",
+      caption: "My most offensive comments. How dirty is YOUR mouth?",
+      description: shitToShare,
+      picture: "https://s3.amazonaws.com/www.yourdirtymouth.com/rsz_smile.png"
+  });
+};
+
+
+</script>
+</html>
